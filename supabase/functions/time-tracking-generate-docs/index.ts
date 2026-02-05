@@ -357,8 +357,16 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
     });
 
-    const now = dayjs();
-    const { year, month } = getBillingMonth(now);
+    const monthParam = url.searchParams.get("month");
+
+    let year: number, month: number;
+    if (monthParam && /^\d{4}-\d{2}$/.test(monthParam)) {
+      const [y, m] = monthParam.split("-").map(Number);
+      year = y!;
+      month = m! - 1;
+    } else {
+      ({ year, month } = getBillingMonth(dayjs()));
+    }
     const monthYear = dayjs().year(year).month(month).format("MMMM YYYY");
 
     const monthStart = dayjs().year(year).month(month).startOf("month");

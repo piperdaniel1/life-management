@@ -108,3 +108,36 @@ export function getTimeOfDayGradient(): string {
 export function formatTime(time: string): string {
   return dayjs(`2000-01-01T${time}`).format("h:mma");
 }
+
+export interface CalendarDay {
+  dateISO: string;
+  dayOfMonth: number;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  isWeekend: boolean;
+}
+
+/**
+ * Returns a 42-cell (6-row) calendar grid for the given month.
+ * Uses isoWeek so weeks start on Monday.
+ */
+export function getCalendarGrid(year: number, month: number): CalendarDay[] {
+  const today = dayjs().startOf("day");
+  const firstOfMonth = dayjs().year(year).month(month).startOf("month");
+  const gridStart = firstOfMonth.startOf("isoWeek");
+
+  const cells: CalendarDay[] = [];
+  for (let i = 0; i < 42; i++) {
+    const d = gridStart.add(i, "day");
+    const dow = d.day();
+    cells.push({
+      dateISO: d.format("YYYY-MM-DD"),
+      dayOfMonth: d.date(),
+      isCurrentMonth: d.month() === month,
+      isToday: d.isSame(today, "day"),
+      isWeekend: dow === 0 || dow === 6,
+    });
+  }
+
+  return cells;
+}

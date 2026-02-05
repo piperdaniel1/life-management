@@ -1,4 +1,6 @@
 import { lazy, Suspense, useState } from "react";
+import { dayjs } from "@/lib/dayjs";
+import { formatDateISO } from "@/lib/dateUtils";
 import { useItems } from "@/hooks/useItems";
 import { useTimeTracking } from "@/hooks/useTimeTracking";
 import { UnifiedInput } from "./UnifiedInput";
@@ -62,7 +64,8 @@ export function Dashboard() {
           <TimeTrackingModal
             open={timeModalOpen}
             onClose={() => setTimeModalOpen(false)}
-            todayEntry={timeTracking.todayEntry}
+            date={formatDateISO(dayjs())}
+            entry={timeTracking.todayEntry}
             monthTotal={timeTracking.monthTotal}
             onSave={timeTracking.upsertEntry}
             onDelete={timeTracking.deleteEntry}

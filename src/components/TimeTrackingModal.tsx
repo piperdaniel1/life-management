@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { dayjs } from "@/lib/dayjs";
-import { formatDateISO } from "@/lib/dateUtils";
 import type { TimeEntry } from "@/types/models";
 
 interface TimeTrackingModalProps {
   open: boolean;
   onClose: () => void;
-  todayEntry: TimeEntry | null;
+  date: string;
+  entry: TimeEntry | null;
   monthTotal: number;
   onSave: (date: string, hours: number, description: string, notes?: string) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
@@ -16,12 +15,12 @@ interface TimeTrackingModalProps {
 export function TimeTrackingModal({
   open,
   onClose,
-  todayEntry,
+  date,
+  entry,
   monthTotal,
   onSave,
   onDelete,
 }: TimeTrackingModalProps) {
-  const todayISO = formatDateISO(dayjs());
 
   const [hours, setHours] = useState("");
   const [description, setDescription] = useState("");
@@ -31,17 +30,17 @@ export function TimeTrackingModal({
   // Pre-populate when editing existing entry
   useEffect(() => {
     if (open) {
-      if (todayEntry) {
-        setHours(String(todayEntry.hours));
-        setDescription(todayEntry.description);
-        setNotes(todayEntry.notes ?? "");
+      if (entry) {
+        setHours(String(entry.hours));
+        setDescription(entry.description);
+        setNotes(entry.notes ?? "");
       } else {
         setHours("");
         setDescription("");
         setNotes("");
       }
     }
-  }, [open, todayEntry]);
+  }, [open, entry]);
 
   // Close on Escape
   useEffect(() => {
@@ -61,15 +60,15 @@ export function TimeTrackingModal({
     if (isNaN(h) || h <= 0 || !description.trim()) return;
 
     setSaving(true);
-    await onSave(todayISO, h, description.trim(), notes.trim() || undefined);
+    await onSave(date, h, description.trim(), notes.trim() || undefined);
     setSaving(false);
     onClose();
   };
 
   const handleDelete = async () => {
-    if (!todayEntry) return;
+    if (!entry) return;
     setSaving(true);
-    await onDelete(todayEntry.id);
+    await onDelete(entry.id);
     setSaving(false);
     onClose();
   };
@@ -83,7 +82,7 @@ export function TimeTrackingModal({
     >
       <div className="mx-4 w-full max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-xl">
         <h2 className="mb-4 text-lg font-semibold text-gray-900">
-          {todayEntry ? "Edit Time Entry" : "Log Time"}
+          {entry ? "Edit Time Entry" : "Log Time"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -94,7 +93,7 @@ export function TimeTrackingModal({
             </label>
             <input
               type="text"
-              value={todayISO}
+              value={date}
               readOnly
               className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500"
             />
@@ -158,7 +157,7 @@ export function TimeTrackingModal({
           {/* Actions */}
           <div className="flex items-center justify-between gap-3 pt-1">
             <div>
-              {todayEntry && (
+              {entry && (
                 <button
                   type="button"
                   onClick={handleDelete}
@@ -182,7 +181,7 @@ export function TimeTrackingModal({
                 disabled={saving}
                 className="rounded-md bg-teal-600 px-4 py-2 text-sm font-medium text-white hover:bg-teal-700 disabled:opacity-50"
               >
-                {saving ? "Saving..." : todayEntry ? "Update" : "Save"}
+                {saving ? "Saving..." : entry ? "Update" : "Save"}
               </button>
             </div>
           </div>

@@ -1,11 +1,18 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
+
+type Page = "dashboard" | "time-tracking";
 
 const Auth = lazy(() =>
   import("@/components/Auth").then((m) => ({ default: m.Auth }))
 );
 const Dashboard = lazy(() =>
   import("@/components/Dashboard").then((m) => ({ default: m.Dashboard }))
+);
+const TimeTrackingPage = lazy(() =>
+  import("@/components/TimeTrackingPage").then((m) => ({
+    default: m.TimeTrackingPage,
+  }))
 );
 
 const LoadingFallback = (
@@ -16,6 +23,7 @@ const LoadingFallback = (
 
 export function App() {
   const { user, loading, signOut } = useAuth();
+  const [page, setPage] = useState<Page>("dashboard");
 
   if (loading) {
     return LoadingFallback;
@@ -29,9 +37,33 @@ export function App() {
     <div className="min-h-screen bg-gray-50">
       <header className="border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-[2000px] items-center justify-between px-4 py-3">
-          <h1 className="text-lg font-semibold text-gray-900">
-            Life Management
-          </h1>
+          <div className="flex items-center gap-6">
+            <h1 className="text-lg font-semibold text-gray-900">
+              Life Management
+            </h1>
+            <nav className="flex gap-1">
+              <button
+                onClick={() => setPage("dashboard")}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  page === "dashboard"
+                    ? "bg-gray-100 text-gray-900"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                }`}
+              >
+                Dashboard
+              </button>
+              <button
+                onClick={() => setPage("time-tracking")}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  page === "time-tracking"
+                    ? "bg-gray-100 text-gray-900"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                }`}
+              >
+                Time Tracking
+              </button>
+            </nav>
+          </div>
           <div className="flex items-center gap-3">
             <span className="text-sm text-gray-500">{user.email}</span>
             <button
@@ -46,7 +78,7 @@ export function App() {
 
       <main className="mx-auto max-w-[2000px] px-4 py-6">
         <Suspense fallback={LoadingFallback}>
-          <Dashboard />
+          {page === "dashboard" ? <Dashboard /> : <TimeTrackingPage />}
         </Suspense>
       </main>
     </div>
