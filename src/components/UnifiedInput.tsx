@@ -1,21 +1,26 @@
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { dayjs } from "@/lib/dayjs";
 import { formatDateISO } from "@/lib/dateUtils";
 import type { ItemType, TodoInsert } from "@/types/models";
 
 interface UnifiedInputProps {
   onAdd: (item: Omit<TodoInsert, "user_id">) => Promise<void>;
+  initialDate?: string;
 }
 
-export function UnifiedInput({ onAdd }: UnifiedInputProps) {
+export function UnifiedInput({ onAdd, initialDate }: UnifiedInputProps) {
   const todayISO = formatDateISO(dayjs());
   const tomorrowISO = formatDateISO(dayjs().add(1, "day"));
 
   const [title, setTitle] = useState("");
   const [itemType, setItemType] = useState<ItemType>("task");
-  const [date, setDate] = useState(todayISO);
+  const [date, setDate] = useState(initialDate ?? todayISO);
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
+
+  useEffect(() => {
+    if (initialDate) setDate(initialDate);
+  }, [initialDate]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();

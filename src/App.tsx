@@ -1,7 +1,7 @@
 import { lazy, Suspense, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 
-type Page = "dashboard" | "time-tracking";
+type Page = "dashboard" | "time-tracking" | "calendar";
 
 const Auth = lazy(() =>
   import("@/components/Auth").then((m) => ({ default: m.Auth }))
@@ -12,6 +12,11 @@ const Dashboard = lazy(() =>
 const TimeTrackingPage = lazy(() =>
   import("@/components/TimeTrackingPage").then((m) => ({
     default: m.TimeTrackingPage,
+  }))
+);
+const CalendarPage = lazy(() =>
+  import("@/components/CalendarPage").then((m) => ({
+    default: m.CalendarPage,
   }))
 );
 
@@ -62,6 +67,16 @@ export function App() {
               >
                 Time Tracking
               </button>
+              <button
+                onClick={() => setPage("calendar")}
+                className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                  page === "calendar"
+                    ? "bg-gray-100 text-gray-900"
+                    : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
+                }`}
+              >
+                Calendar
+              </button>
             </nav>
           </div>
           <div className="flex items-center gap-3">
@@ -78,7 +93,9 @@ export function App() {
 
       <main className="mx-auto max-w-[2000px] px-4 py-6">
         <Suspense fallback={LoadingFallback}>
-          {page === "dashboard" ? <Dashboard /> : <TimeTrackingPage />}
+          {page === "dashboard" && <Dashboard />}
+          {page === "time-tracking" && <TimeTrackingPage />}
+          {page === "calendar" && <CalendarPage />}
         </Suspense>
       </main>
     </div>
