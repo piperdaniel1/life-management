@@ -224,23 +224,6 @@ export function useTimeTracking(): TimeTrackingState & TimeTrackingActions {
     setError(null);
 
     try {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (!session) throw new Error("Not authenticated");
-
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const headers = {
-        Authorization: `Bearer ${session.access_token}`,
-      };
-
-      // Download all 3 files in parallel
-      const [csvRes, invoiceRes, hoursLogRes] = await Promise.all([
-        fetch(`${supabaseUrl}/functions/v1/time-tracking-export`, { headers }),
-        fetch(`${supabaseUrl}/functions/v1/time-tracking-generate-docs?type=invoice`, { headers }),
-        fetch(`${supabaseUrl}/functions/v1/time-tracking-generate-docs?type=hours-log`, { headers }),
-      ]);
-
       const triggerDownload = (blob: Blob, filename: string) => {
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
@@ -252,25 +235,24 @@ export function useTimeTracking(): TimeTrackingState & TimeTrackingActions {
         URL.revokeObjectURL(url);
       };
 
-      if (csvRes.ok) {
-        const disposition = csvRes.headers.get("Content-Disposition") ?? "";
-        const match = disposition.match(/filename="?([^"]+)"?/);
-        const filename = match?.[1] ?? `time-tracking-${billingMonthStr}.csv`;
-        triggerDownload(await csvRes.blob(), filename);
+      const [csvResult, invoiceResult, hoursLogResult] = await Promise.allSettled([
+        supabase.functions.invoke(`time-tracking-export`, { method: "GET" }),
+        supabase.functions.invoke(`time-tracking-generate-docs?type=invoice`, { method: "GET" }),
+        supabase.functions.invoke(`time-tracking-generate-docs?type=hours-log`, { method: "GET" }),
+      ]);
+
+      if (csvResult.status === "fulfilled" && !csvResult.value.error) {
+        const data = csvResult.value.data;
+        const blob = typeof data === "string" ? new Blob([data], { type: "text/csv" }) : data as Blob;
+        triggerDownload(blob, `time-tracking-${billingMonthStr}.csv`);
       }
 
-      if (invoiceRes.ok) {
-        const disposition = invoiceRes.headers.get("Content-Disposition") ?? "";
-        const match = disposition.match(/filename="?([^"]+)"?/);
-        const filename = match?.[1] ?? `Invoice ${billingMonthLabel}.pdf`;
-        triggerDownload(await invoiceRes.blob(), filename);
+      if (invoiceResult.status === "fulfilled" && !invoiceResult.value.error) {
+        triggerDownload(invoiceResult.value.data as Blob, `Invoice ${billingMonthLabel}.pdf`);
       }
 
-      if (hoursLogRes.ok) {
-        const disposition = hoursLogRes.headers.get("Content-Disposition") ?? "";
-        const match = disposition.match(/filename="?([^"]+)"?/);
-        const filename = match?.[1] ?? `Hours Log ${billingMonthLabel}.pdf`;
-        triggerDownload(await hoursLogRes.blob(), filename);
+      if (hoursLogResult.status === "fulfilled" && !hoursLogResult.value.error) {
+        triggerDownload(hoursLogResult.value.data as Blob, `Hours Log ${billingMonthLabel}.pdf`);
       }
 
       await markDownloaded();

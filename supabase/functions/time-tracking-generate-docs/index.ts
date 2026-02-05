@@ -1,7 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { PDFDocument, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";
 import dayjs from "npm:dayjs@1.11.13";
-import advancedFormat from "npm:dayjs@1.11.13/plugin/advancedFormat";
+import advancedFormat from "npm:dayjs@1.11.13/plugin/advancedFormat.js";
 
 dayjs.extend(advancedFormat);
 
@@ -9,6 +9,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
 };
 
 // ============================================
