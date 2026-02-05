@@ -23,28 +23,22 @@ export function MasterList({
 }: MasterListProps) {
   const todayISO = formatDateISO(dayjs());
 
-  // Active (incomplete) items sorted: today first, then by date, events by start_time
+  // Active (incomplete) items for today only: today's date, overdue (pulled to today), or unscheduled
   const activeItems = items
-    .filter((i) => !i.is_complete)
+    .filter((i) => {
+      if (i.is_complete) return false;
+      const effective = getEffectiveDate(i);
+      return !effective || effective === todayISO;
+    })
     .sort((a, b) => {
       const dateA = getEffectiveDate(a);
       const dateB = getEffectiveDate(b);
 
-      // Items dated today come first
-      const aIsToday = dateA === todayISO;
-      const bIsToday = dateB === todayISO;
-      if (aIsToday !== bIsToday) return aIsToday ? -1 : 1;
-
-      // Unscheduled items after scheduled ones
+      // Scheduled (today) items before unscheduled
       if (dateA && !dateB) return -1;
       if (!dateA && dateB) return 1;
 
-      // Sort by date
-      if (dateA && dateB && dateA !== dateB) {
-        return dateA.localeCompare(dateB);
-      }
-
-      // Events before tasks on same date
+      // Events before tasks
       if (a.item_type !== b.item_type) {
         return a.item_type === "event" ? -1 : 1;
       }
@@ -57,7 +51,9 @@ export function MasterList({
       return 0;
     });
 
-  const completedItems = items.filter((i) => i.is_complete);
+  const completedItems = items.filter(
+    (i) => i.is_complete && (!i.scheduled_date || i.scheduled_date === todayISO),
+  );
 
   return (
     <div className="flex flex-col gap-3">
