@@ -1,53 +1,31 @@
-# Deploy to Netlify + Supabase on push to main
+# Deploy Supabase migrations + edge functions on push to main
 #
 # Required GitHub Secrets:
 #
-#   Netlify:
-#     NETLIFY_AUTH_TOKEN  — Personal access token (Netlify > User settings > Applications > Personal access tokens)
-#     NETLIFY_SITE_ID     — Site ID (Netlify > Site configuration > General > Site ID)
-#
-#   Supabase:
-#     SUPABASE_ACCESS_TOKEN — Personal access token (Supabase > Account > Access Tokens)
-#     SUPABASE_PROJECT_REF  — Project reference ID (Supabase > Project Settings > General)
-#     SUPABASE_DB_PASSWORD  — Database password (Supabase > Project Settings > Database)
-#
-#   Build:
-#     VITE_SUPABASE_URL      — e.g. https://<project>.supabase.co
-#     VITE_SUPABASE_ANON_KEY — Public anon key from Supabase > Project Settings > API
-#
-# If Netlify is currently auto-deploying via git integration, disable that
-# in Netlify > Site configuration > Build & deploy > Continuous deployment
-# to avoid double deploys.
+#   SUPABASE_ACCESS_TOKEN — Personal access token (Supabase > Account > Access Tokens)
+#   SUPABASE_PROJECT_REF  — Project reference ID (Supabase > Project Settings > General)
+#   SUPABASE_DB_PASSWORD  — Database password (Supabase > Project Settings > Database)
 
-name: Deploy
+name: Deploy Supabase
 
 on:
   push:
     branches: [main]
 
 concurrency:
-  group: deploy
+  group: deploy-supabase
   cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Deploy
+    name: Deploy Supabase
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-
       - uses: supabase/setup-cli@v1
         with:
           version: latest
-
-      - run: npm ci
-
-      # --- Supabase (run migrations before frontend in case schema changed) ---
 
       - name: Link Supabase project
         run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
@@ -65,17 +43,3 @@ jobs:
         run: supabase functions deploy
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-
-      # --- Netlify ---
-
-      - name: Build frontend
-        run: npm run build
-        env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-
-      - name: Deploy to Netlify
-        run: npx netlify-cli deploy --prod --dir=dist
-        env:
-          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
