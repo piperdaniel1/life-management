@@ -1,7 +1,7 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { PDFDocument, StandardFonts, rgb } from "https://esm.sh/pdf-lib@1.17.1";
-import dayjs from "https://esm.sh/dayjs@1.11.13";
-import advancedFormat from "https://esm.sh/dayjs@1.11.13/plugin/advancedFormat";
+import { createClient } from "npm:@supabase/supabase-js@2";
+import { PDFDocument, StandardFonts, rgb } from "npm:pdf-lib@1.17.1";
+import dayjs from "npm:dayjs@1.11.13";
+import advancedFormat from "npm:dayjs@1.11.13/plugin/advancedFormat";
 
 dayjs.extend(advancedFormat);
 

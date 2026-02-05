@@ -2,8 +2,8 @@
 // Intended to be called via a cron job or manual trigger.
 // Uses the service_role key (set via Supabase secrets) so it bypasses RLS.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import dayjs from "https://esm.sh/dayjs@1.11.13";
+import { createClient } from "npm:@supabase/supabase-js@2";
+import dayjs from "npm:dayjs@1.11.13";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",

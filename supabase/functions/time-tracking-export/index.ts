@@ -1,5 +1,5 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import dayjs from "https://esm.sh/dayjs@1.11.13";
+import { createClient } from "npm:@supabase/supabase-js@2";
+import dayjs from "npm:dayjs@1.11.13";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
