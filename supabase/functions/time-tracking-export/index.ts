@@ -1,20 +1,11 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import dayjs from "https://esm.sh/dayjs@1.11.13";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
 };
-
-const DAYS_OF_WEEK = [
-  "Sunday",
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-];
 
 function escapeCsvField(field: string): string {
   if (field.includes(",") || field.includes('"') || field.includes("\n")) {
@@ -23,24 +14,14 @@ function escapeCsvField(field: string): string {
   return field;
 }
 
-function formatDateMDY(dateStr: string): string {
-  const [y, m, d] = dateStr.split("-");
-  return `${parseInt(m!)}/${parseInt(d!)}/${y}`;
-}
-
-function getDayOfWeek(dateStr: string): string {
-  const date = new Date(dateStr + "T12:00:00");
-  return DAYS_OF_WEEK[date.getDay()]!;
-}
-
 /**
  * Determine the billing month.
  * Days 1-14: previous month. Days 15+: current month.
  */
-function getBillingMonth(now: Date): { year: number; month: number } {
-  const day = now.getDate();
-  let year = now.getFullYear();
-  let month = now.getMonth(); // 0-indexed
+function getBillingMonth(now = dayjs()): { year: number; month: number } {
+  const day = now.date();
+  let year = now.year();
+  let month = now.month(); // 0-indexed
 
   if (day < 15) {
     month -= 1;
@@ -74,12 +55,12 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
     });
 
-    const now = new Date();
+    const now = dayjs();
     const { year, month } = getBillingMonth(now);
 
-    const firstOfMonth = `${year}-${String(month + 1).padStart(2, "0")}-01`;
-    const lastDay = new Date(year, month + 1, 0).getDate();
-    const lastOfMonth = `${year}-${String(month + 1).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+    const monthStart = dayjs().year(year).month(month).startOf("month");
+    const firstOfMonth = monthStart.format("YYYY-MM-DD");
+    const lastOfMonth = monthStart.endOf("month").format("YYYY-MM-DD");
 
     const { data: entries, error } = await supabase
       .from("time_entries")
@@ -96,8 +77,8 @@ Deno.serve(async (req) => {
     for (const entry of entries ?? []) {
       csvLines.push(
         [
-          formatDateMDY(entry.date),
-          getDayOfWeek(entry.date),
+          dayjs(entry.date).format("M/D/YYYY"),
+          dayjs(entry.date).format("dddd"),
           entry.hours.toString(),
           escapeCsvField(entry.description),
           escapeCsvField(entry.notes ?? ""),

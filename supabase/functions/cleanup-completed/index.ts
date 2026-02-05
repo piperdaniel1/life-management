@@ -3,6 +3,7 @@
 // Uses the service_role key (set via Supabase secrets) so it bypasses RLS.
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import dayjs from "https://esm.sh/dayjs@1.11.13";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -20,8 +21,7 @@ Deno.serve(async (req) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-    const thirtyDaysAgo = new Date();
-    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+    const thirtyDaysAgo = dayjs().subtract(30, "day");
 
     const { data, error } = await supabase
       .from("todos")

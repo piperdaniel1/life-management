@@ -85,6 +85,16 @@ These are public/safe — security comes from RLS, not key secrecy.
 - `netlify.toml` configures build command (`npm run build`), publish dir (`dist`), and SPA redirect
 - Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Netlify > Site configuration > Environment variables
 
+## Date Handling (Day.js)
+
+Always use Day.js — never `new Date()`.
+
+- **Frontend**: Import from `@/lib/dayjs` (registers `isoWeek` plugin). Never import from `'dayjs'` directly.
+- **Edge functions (Deno)**: Import from `https://esm.sh/dayjs@1.11.13`. Import plugins from `https://esm.sh/dayjs@1.11.13/plugin/<name>`.
+- **Plugins**: `isoWeek` (frontend — Monday-based week start), `advancedFormat` (edge function `time-tracking-generate-docs` — ordinal `Do` token).
+- **Shared utils**: `formatDateISO`, `getRollingWeekDays`, `getEffectiveDate`, `isEventPast`, `getTimeOfDayGradient`, `formatTime` live in `src/lib/dateUtils.ts`.
+- **Common patterns**: `dayjs().format("YYYY-MM-DD")`, `.startOf("isoWeek")`, `.add(1, "day")`, `.daysInMonth()`, `.isBefore()`, `.isSame()`, `.isAfter()`.
+
 ## Edge Functions
 
 Located in `supabase/functions/<name>/index.ts`. Deno runtime.

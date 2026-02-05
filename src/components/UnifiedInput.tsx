@@ -1,4 +1,5 @@
 import { FormEvent, useState } from "react";
+import { dayjs } from "@/lib/dayjs";
 import { formatDateISO } from "@/lib/dateUtils";
 import type { ItemType, TodoInsert } from "@/types/models";
 
@@ -7,8 +8,8 @@ interface UnifiedInputProps {
 }
 
 export function UnifiedInput({ onAdd }: UnifiedInputProps) {
-  const todayISO = formatDateISO(new Date());
-  const tomorrowISO = formatDateISO(new Date(Date.now() + 86400000));
+  const todayISO = formatDateISO(dayjs());
+  const tomorrowISO = formatDateISO(dayjs().add(1, "day"));
 
   const [title, setTitle] = useState("");
   const [itemType, setItemType] = useState<ItemType>("task");

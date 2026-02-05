@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
+import { dayjs } from "@/lib/dayjs";
+import { formatDateISO } from "@/lib/dateUtils";
 import type { TimeEntry } from "@/types/models";
 
 interface TimeTrackingModalProps {
@@ -11,13 +13,6 @@ interface TimeTrackingModalProps {
   onDelete: (id: string) => Promise<void>;
 }
 
-function formatDateISO(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
 export function TimeTrackingModal({
   open,
   onClose,
@@ -26,7 +21,7 @@ export function TimeTrackingModal({
   onSave,
   onDelete,
 }: TimeTrackingModalProps) {
-  const todayISO = formatDateISO(new Date());
+  const todayISO = formatDateISO(dayjs());
 
   const [hours, setHours] = useState("");
   const [description, setDescription] = useState("");

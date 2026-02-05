@@ -1,5 +1,9 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { PDFDocument, StandardFonts, rgb } from "https://esm.sh/pdf-lib@1.17.1";
+import dayjs from "https://esm.sh/dayjs@1.11.13";
+import advancedFormat from "https://esm.sh/dayjs@1.11.13/plugin/advancedFormat";
+
+dayjs.extend(advancedFormat);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -37,10 +41,10 @@ interface BillingEntry {
  * Determine the billing month.
  * Days 1-14: previous month. Days 15+: current month.
  */
-function getBillingMonth(now: Date): { year: number; month: number } {
-  const day = now.getDate();
-  let year = now.getFullYear();
-  let month = now.getMonth();
+function getBillingMonth(now = dayjs()): { year: number; month: number } {
+  const day = now.date();
+  let year = now.year();
+  let month = now.month();
 
   if (day < 15) {
     month -= 1;
@@ -53,66 +57,20 @@ function getBillingMonth(now: Date): { year: number; month: number } {
   return { year, month };
 }
 
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
-const DAY_NAMES = [
-  "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday",
-];
-
-function parseDate(dateStr: string): Date {
-  return new Date(dateStr + "T12:00:00");
-}
-
-function formatMonthYear(year: number, month: number): string {
-  return `${MONTH_NAMES[month]} ${year}`;
-}
-
-function formatMD(dateStr: string): string {
-  const d = parseDate(dateStr);
-  return `${d.getMonth() + 1}/${d.getDate()}`;
-}
-
-function formatMMDDYY(dateStr: string): string {
-  const d = parseDate(dateStr);
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  const yy = String(d.getFullYear()).slice(2);
-  return `${mm}/${dd}/${yy}`;
-}
-
-function formatFullDate(dateStr: string): string {
-  const d = parseDate(dateStr);
-  return `${DAY_NAMES[d.getDay()]}, ${MONTH_NAMES[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()}`;
-}
-
-function getOrdinalSuffix(day: number): string {
-  if (day >= 11 && day <= 13) return "th";
-  switch (day % 10) {
-    case 1: return "st";
-    case 2: return "nd";
-    case 3: return "rd";
-    default: return "th";
-  }
-}
-
 /**
  * Get week number within month (1-indexed, weeks start on Sunday).
  */
 function getWeekNumber(dateStr: string): number {
-  const date = parseDate(dateStr);
-  const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
-  const daysUntilSunday = (7 - firstDay.getDay()) % 7;
-  const firstSun = new Date(firstDay);
-  firstSun.setDate(firstDay.getDate() + daysUntilSunday);
+  const date = dayjs(dateStr);
+  const firstDay = date.startOf("month");
+  const daysUntilSunday = (7 - firstDay.day()) % 7;
+  const firstSun = firstDay.add(daysUntilSunday, "day");
 
-  if (date < firstSun) return 1;
+  if (date.isBefore(firstSun)) return 1;
 
-  const isSameDay = firstSun.getTime() === firstDay.getTime();
+  const isSameDay = firstSun.isSame(firstDay, "day");
   const base = isSameDay ? 1 : 2;
-  const diffDays = Math.floor((date.getTime() - firstSun.getTime()) / (1000 * 60 * 60 * 24));
+  const diffDays = date.diff(firstSun, "day");
   return Math.floor(diffDays / 7) + base;
 }
 
@@ -141,18 +99,16 @@ async function generateInvoicePdf(
   const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-  const monthYear = formatMonthYear(year, month);
+  const monthYear = dayjs().year(year).month(month).format("MMMM YYYY");
   const billingEntries: BillingEntry[] = [];
   let totalAmount = 0;
 
-  const lastDay = new Date(year, month + 1, 0);
-  const invoiceDateStr = `${MONTH_NAMES[month]} ${lastDay.getDate()}${getOrdinalSuffix(lastDay.getDate())}, ${year}`;
+  const lastDayOfMonth = dayjs().year(year).month(month).endOf("month");
+  const invoiceDateStr = lastDayOfMonth.format("MMMM Do, YYYY");
 
   // Payment due: 45 days after end of month, snapped to the 15th
-  const dueDate = new Date(lastDay);
-  dueDate.setDate(dueDate.getDate() + 45);
-  dueDate.setDate(15);
-  const paymentDueDateStr = `${MONTH_NAMES[dueDate.getMonth()]} ${dueDate.getDate()}${getOrdinalSuffix(dueDate.getDate())}`;
+  const dueDate = lastDayOfMonth.add(45, "day").date(15);
+  const paymentDueDateStr = dueDate.format("MMMM Do");
 
   const sortedWeeks = Object.keys(weeks)
     .map(Number)
@@ -168,10 +124,10 @@ async function generateInvoicePdf(
     const weekStart = dates[0]!;
     const weekEnd = dates[dates.length - 1]!;
 
-    const weekLabel = `${monthYear} Week ${weekNum} (${formatMD(weekStart)} - ${formatMD(weekEnd)})`;
+    const weekLabel = `${monthYear} Week ${weekNum} (${dayjs(weekStart).format("M/D")} - ${dayjs(weekEnd).format("M/D")})`;
 
     billingEntries.push({
-      date: formatMMDDYY(weekEnd),
+      date: dayjs(weekEnd).format("MM/DD/YY"),
       description: weekLabel,
       amount: weekAmount,
     });
@@ -270,7 +226,7 @@ async function generateHoursLogPdf(
   const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   const helveticaOblique = await pdfDoc.embedFont(StandardFonts.HelveticaOblique);
 
-  const monthYear = formatMonthYear(year, month);
+  const monthYear = dayjs().year(year).month(month).format("MMMM YYYY");
 
   let y = height - 50;
   const leftMargin = 50;
@@ -308,7 +264,7 @@ async function generateHoursLogPdf(
       }
 
       totalHours += entry.hours;
-      const dateStr = formatFullDate(entry.date);
+      const dateStr = dayjs(entry.date).format("dddd, MMMM D, YYYY");
 
       page.drawText(dateStr, { x: leftMargin, y, size: 13, font: helveticaBold });
       const dateWidth = helveticaBold.widthOfTextAtSize(dateStr, 13);
@@ -401,13 +357,13 @@ Deno.serve(async (req) => {
       global: { headers: { Authorization: authHeader } },
     });
 
-    const now = new Date();
+    const now = dayjs();
     const { year, month } = getBillingMonth(now);
-    const monthYear = formatMonthYear(year, month);
+    const monthYear = dayjs().year(year).month(month).format("MMMM YYYY");
 
-    const firstOfMonth = `${year}-${String(month + 1).padStart(2, "0")}-01`;
-    const lastDay = new Date(year, month + 1, 0).getDate();
-    const lastOfMonth = `${year}-${String(month + 1).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+    const monthStart = dayjs().year(year).month(month).startOf("month");
+    const firstOfMonth = monthStart.format("YYYY-MM-DD");
+    const lastOfMonth = monthStart.endOf("month").format("YYYY-MM-DD");
 
     const { data: entries, error } = await supabase
       .from("time_entries")

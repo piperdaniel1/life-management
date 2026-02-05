@@ -1,24 +1,21 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { dayjs } from "@/lib/dayjs";
+import { formatDateISO } from "@/lib/dateUtils";
 import type { TimeEntry, TimeEntryUpdate } from "@/types/models";
 
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
-
-function isWorkday(date: Date): boolean {
-  const day = date.getDay();
+function isWorkday(date = dayjs()): boolean {
+  const day = date.day();
   return day >= 1 && day <= 5;
 }
 
 /** Get the last Mon-Fri of a given month. */
 function getLastWorkday(year: number, month: number): number {
-  const lastDay = new Date(year, month + 1, 0);
-  while (lastDay.getDay() === 0 || lastDay.getDay() === 6) {
-    lastDay.setDate(lastDay.getDate() - 1);
+  let d = dayjs().year(year).month(month).endOf("month");
+  while (d.day() === 0 || d.day() === 6) {
+    d = d.subtract(1, "day");
   }
-  return lastDay.getDate();
+  return d.date();
 }
 
 /**
@@ -26,11 +23,11 @@ function getLastWorkday(year: number, month: number): number {
  * Day 1-14: billing month = previous month.
  * Day 15+: billing month = current month.
  */
-function getBillingMonth(now: Date): { year: number; month: number; str: string } {
-  let year = now.getFullYear();
-  let month = now.getMonth();
+function getBillingMonth(now = dayjs()): { year: number; month: number; str: string } {
+  let year = now.year();
+  let month = now.month();
 
-  if (now.getDate() < 15) {
+  if (now.date() < 15) {
     month -= 1;
     if (month < 0) {
       month = 11;
@@ -42,9 +39,9 @@ function getBillingMonth(now: Date): { year: number; month: number; str: string 
   return { year, month, str };
 }
 
-function getCurrentMonth(now: Date): { year: number; month: number; str: string } {
-  const year = now.getFullYear();
-  const month = now.getMonth();
+function getCurrentMonth(now = dayjs()): { year: number; month: number; str: string } {
+  const year = now.year();
+  const month = now.month();
   const str = `${year}-${String(month + 1).padStart(2, "0")}`;
   return { year, month, str };
 }
@@ -56,19 +53,12 @@ function getCurrentMonth(now: Date): { year: number; month: number; str: string 
  *  - Day >= last workday of current billing month
  * AND no download record exists for the billing month.
  */
-function isInDownloadWindow(now: Date): boolean {
-  const day = now.getDate();
+function isInDownloadWindow(now = dayjs()): boolean {
+  const day = now.date();
   if (day < 15) return true;
 
-  const lastWd = getLastWorkday(now.getFullYear(), now.getMonth());
+  const lastWd = getLastWorkday(now.year(), now.month());
   return day >= lastWd;
-}
-
-function formatDateISO(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
 }
 
 export interface TimeTrackingState {
@@ -98,22 +88,22 @@ export function useTimeTracking(): TimeTrackingState & TimeTrackingActions {
   const [downloaded, setDownloaded] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
-  const now = new Date();
+  const now = dayjs();
   const todayISO = formatDateISO(now);
   const { year, month } = getCurrentMonth(now);
   const { str: billingMonthStr } = getBillingMonth(now);
   const workday = isWorkday(now);
   const inDownloadWindow = isInDownloadWindow(now);
 
-  const billingMonthLabel = MONTH_NAMES[month]!;
+  const billingMonthLabel = dayjs().month(month).format("MMMM");
 
   const fetchEntries = useCallback(async () => {
     setLoading(true);
     setError(null);
 
-    const firstOfMonth = `${year}-${String(month + 1).padStart(2, "0")}-01`;
-    const lastDay = new Date(year, month + 1, 0).getDate();
-    const lastOfMonth = `${year}-${String(month + 1).padStart(2, "0")}-${String(lastDay).padStart(2, "0")}`;
+    const monthStart = dayjs().year(year).month(month).startOf("month");
+    const firstOfMonth = monthStart.format("YYYY-MM-DD");
+    const lastOfMonth = monthStart.endOf("month").format("YYYY-MM-DD");
 
     const { data, error: fetchError } = await supabase
       .from("time_entries")

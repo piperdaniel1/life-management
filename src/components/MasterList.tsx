@@ -1,3 +1,4 @@
+import { dayjs } from "@/lib/dayjs";
 import { getEffectiveDate, formatDateISO } from "@/lib/dateUtils";
 import { ItemRow } from "./ItemRow";
 import { TimeTrackingRow } from "./TimeTrackingRow";
@@ -20,7 +21,7 @@ export function MasterList({
   timeTracking,
   onTimeTrackingClick,
 }: MasterListProps) {
-  const todayISO = formatDateISO(new Date());
+  const todayISO = formatDateISO(dayjs());
 
   // Active (incomplete) items sorted: today first, then by date, events by start_time
   const activeItems = items
