@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatTime } from "@/lib/dateUtils";
 import type { Item, TodoUpdate } from "@/types/models";
 
@@ -12,8 +12,24 @@ interface ItemRowProps {
 export function ItemRow({ item, onUpdate, onDelete, compact }: ItemRowProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(item.title);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  useEffect(() => {
+    if (!confirmDelete) return;
+    const timer = setTimeout(() => setConfirmDelete(false), 2000);
+    return () => clearTimeout(timer);
+  }, [confirmDelete]);
+
+  const handleDeleteClick = () => {
+    if (confirmDelete) {
+      onDelete(item.id);
+    } else {
+      setConfirmDelete(true);
+    }
+  };
 
   const handleToggle = () => {
+    setConfirmDelete(false);
     onUpdate(item.id, { is_complete: !item.is_complete });
   };
 
@@ -86,7 +102,10 @@ export function ItemRow({ item, onUpdate, onDelete, compact }: ItemRowProps) {
         />
       ) : (
         <span
-          onDoubleClick={() => setIsEditing(true)}
+          onDoubleClick={() => {
+            setConfirmDelete(false);
+            setIsEditing(true);
+          }}
           className={`min-w-0 flex-1 cursor-pointer truncate ${
             compact ? "text-xs" : "text-sm"
           } ${item.is_complete ? "text-gray-400 line-through" : "text-gray-900"}`}
@@ -106,8 +125,12 @@ export function ItemRow({ item, onUpdate, onDelete, compact }: ItemRowProps) {
       )}
 
       <button
-        onClick={() => onDelete(item.id)}
-        className="shrink-0 rounded p-0.5 text-gray-400 opacity-0 transition-opacity hover:text-red-500 group-hover:opacity-100"
+        onClick={handleDeleteClick}
+        className={`shrink-0 rounded p-1 md:p-0.5 transition-all ${
+          confirmDelete
+            ? "text-red-500 bg-red-50 scale-110 opacity-100"
+            : "text-gray-400 opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:text-red-500"
+        }`}
         aria-label="Delete item"
       >
         <svg
