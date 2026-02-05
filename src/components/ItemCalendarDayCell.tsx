@@ -26,7 +26,11 @@ export function ItemCalendarDayCell({ day, items, onClick }: ItemCalendarDayCell
   // Sort: events by start_time first, then tasks
   const sorted = [...items].sort((a, b) => {
     if (a.item_type !== b.item_type) return a.item_type === "event" ? -1 : 1;
-    if (a.start_time && b.start_time) return a.start_time.localeCompare(b.start_time);
+    if (a.item_type === "event") {
+      if (a.start_time && !b.start_time) return 1;
+      if (!a.start_time && b.start_time) return -1;
+      if (a.start_time && b.start_time) return a.start_time.localeCompare(b.start_time);
+    }
     return 0;
   });
 

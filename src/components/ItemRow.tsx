@@ -36,12 +36,13 @@ export function ItemRow({ item, onUpdate, onDelete, compact }: ItemRowProps) {
   };
 
   const isEvent = item.item_type === "event";
-  const timeBadge =
-    isEvent && item.start_time
+  const timeBadge = isEvent
+    ? item.start_time
       ? item.end_time
         ? `${formatTime(item.start_time)}–${formatTime(item.end_time)}`
         : formatTime(item.start_time)
-      : null;
+      : "All day"
+    : null;
 
   return (
     <li

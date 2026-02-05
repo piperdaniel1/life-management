@@ -51,9 +51,11 @@ export function DayCard({
       if (a.item_type !== b.item_type) {
         return a.item_type === "event" ? -1 : 1;
       }
-      // Events sorted by start_time
-      if (a.start_time && b.start_time) {
-        return a.start_time.localeCompare(b.start_time);
+      // Full-day events (no start_time) before timed events
+      if (a.item_type === "event") {
+        if (a.start_time && !b.start_time) return 1;
+        if (!a.start_time && b.start_time) return -1;
+        if (a.start_time && b.start_time) return a.start_time.localeCompare(b.start_time);
       }
       return 0;
     });
