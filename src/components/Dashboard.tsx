@@ -1,11 +1,16 @@
+import { useState } from "react";
 import { useItems } from "@/hooks/useItems";
+import { useTimeTracking } from "@/hooks/useTimeTracking";
 import { UnifiedInput } from "./UnifiedInput";
 import { MasterList } from "./MasterList";
 import { WeekView } from "./WeekView";
+import { TimeTrackingModal } from "./TimeTrackingModal";
 
 export function Dashboard() {
   const { items, loading, error, addItem, updateItem, deleteItem } =
     useItems();
+  const timeTracking = useTimeTracking();
+  const [timeModalOpen, setTimeModalOpen] = useState(false);
 
   if (loading) {
     return (
@@ -33,6 +38,8 @@ export function Dashboard() {
           items={items}
           onUpdate={updateItem}
           onDelete={deleteItem}
+          timeTracking={timeTracking}
+          onTimeTrackingClick={() => setTimeModalOpen(true)}
         />
       </div>
 
@@ -42,8 +49,19 @@ export function Dashboard() {
           items={items}
           onUpdate={updateItem}
           onDelete={deleteItem}
+          timeTracking={timeTracking}
+          onTimeTrackingClick={() => setTimeModalOpen(true)}
         />
       </div>
+
+      <TimeTrackingModal
+        open={timeModalOpen}
+        onClose={() => setTimeModalOpen(false)}
+        todayEntry={timeTracking.todayEntry}
+        monthTotal={timeTracking.monthTotal}
+        onSave={timeTracking.upsertEntry}
+        onDelete={timeTracking.deleteEntry}
+      />
     </div>
   );
 }

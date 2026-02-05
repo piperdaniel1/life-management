@@ -1,14 +1,23 @@
 import { getRollingWeekDays } from "@/lib/dateUtils";
 import { DayCard } from "./DayCard";
 import type { Item, TodoUpdate } from "@/types/models";
+import type { TimeTrackingState, TimeTrackingActions } from "@/hooks/useTimeTracking";
 
 interface WeekViewProps {
   items: Item[];
   onUpdate: (id: string, updates: TodoUpdate) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  timeTracking: TimeTrackingState & TimeTrackingActions;
+  onTimeTrackingClick: () => void;
 }
 
-export function WeekView({ items, onUpdate, onDelete }: WeekViewProps) {
+export function WeekView({
+  items,
+  onUpdate,
+  onDelete,
+  timeTracking,
+  onTimeTrackingClick,
+}: WeekViewProps) {
   const days = getRollingWeekDays();
 
   // Mon-Fri are individual cards, Sat+Sun combined
@@ -32,6 +41,8 @@ export function WeekView({ items, onUpdate, onDelete }: WeekViewProps) {
             items={items}
             onUpdate={onUpdate}
             onDelete={onDelete}
+            timeTracking={timeTracking}
+            onTimeTrackingClick={onTimeTrackingClick}
           />
         ))}
         <DayCard
@@ -40,6 +51,8 @@ export function WeekView({ items, onUpdate, onDelete }: WeekViewProps) {
           items={items}
           onUpdate={onUpdate}
           onDelete={onDelete}
+          timeTracking={timeTracking}
+          onTimeTrackingClick={onTimeTrackingClick}
         />
       </div>
     </div>

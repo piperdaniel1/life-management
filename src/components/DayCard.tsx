@@ -1,7 +1,10 @@
 import type { DayInfo } from "@/lib/dateUtils";
 import { getTimeOfDayGradient, formatDateISO, getEffectiveDate } from "@/lib/dateUtils";
 import { ItemRow } from "./ItemRow";
+import { TimeTrackingRow } from "./TimeTrackingRow";
+import { DownloadReminderRow } from "./DownloadReminderRow";
 import type { Item, TodoUpdate } from "@/types/models";
+import type { TimeTrackingState, TimeTrackingActions } from "@/hooks/useTimeTracking";
 
 interface DayCardProps {
   day: DayInfo;
@@ -10,6 +13,8 @@ interface DayCardProps {
   items: Item[];
   onUpdate: (id: string, updates: TodoUpdate) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  timeTracking: TimeTrackingState & TimeTrackingActions;
+  onTimeTrackingClick: () => void;
 }
 
 export function DayCard({
@@ -18,6 +23,8 @@ export function DayCard({
   items,
   onUpdate,
   onDelete,
+  timeTracking,
+  onTimeTrackingClick,
 }: DayCardProps) {
   const isToday = day.isToday || (secondDay?.isToday ?? false);
   const displayDateStr = formatDateISO(day.displayDate);
@@ -63,6 +70,10 @@ export function DayCard({
 
   const gradientClass = isToday ? getTimeOfDayGradient() : "bg-white";
 
+  // Show time tracking only on today's card if it's a workday
+  const showTimeTracking = isToday && timeTracking.isWorkday;
+  const showDownloadReminder = isToday && timeTracking.showDownloadReminder;
+
   return (
     <div
       className={`flex flex-col rounded-lg border shadow-sm ${
@@ -93,13 +104,31 @@ export function DayCard({
       </div>
 
       <div className="flex-1 space-y-1 overflow-y-auto p-2">
-        {activeItems.length === 0 && completedItems.length === 0 ? (
+        {activeItems.length === 0 &&
+        completedItems.length === 0 &&
+        !showTimeTracking &&
+        !showDownloadReminder ? (
           <p className="py-3 text-center text-xs text-gray-400">
             Nothing scheduled
           </p>
         ) : (
           <>
             <ul className="space-y-1">
+              {showDownloadReminder && (
+                <DownloadReminderRow
+                  billingMonthLabel={timeTracking.billingMonthLabel}
+                  downloading={timeTracking.downloading}
+                  compact
+                  onClick={timeTracking.downloadFiles}
+                />
+              )}
+              {showTimeTracking && (
+                <TimeTrackingRow
+                  todayHours={timeTracking.todayHours}
+                  compact
+                  onClick={onTimeTrackingClick}
+                />
+              )}
               {activeItems.map((item) => (
                 <ItemRow
                   key={item.id}

@@ -39,6 +39,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      time_entries: {
+        Row: {
+          created_at: string | null
+          date: string
+          description: string
+          hours: number
+          id: string
+          notes: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          date: string
+          description: string
+          hours: number
+          id?: string
+          notes?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          date?: string
+          description?: string
+          hours?: number
+          id?: string
+          notes?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      time_tracking_downloads: {
+        Row: {
+          billing_month: string
+          downloaded_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          billing_month: string
+          downloaded_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          billing_month?: string
+          downloaded_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       todos: {
         Row: {
           created_at: string

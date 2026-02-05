@@ -1,14 +1,25 @@
 import { getEffectiveDate, formatDateISO } from "@/lib/dateUtils";
 import { ItemRow } from "./ItemRow";
+import { TimeTrackingRow } from "./TimeTrackingRow";
+import { DownloadReminderRow } from "./DownloadReminderRow";
 import type { Item, TodoUpdate } from "@/types/models";
+import type { TimeTrackingState, TimeTrackingActions } from "@/hooks/useTimeTracking";
 
 interface MasterListProps {
   items: Item[];
   onUpdate: (id: string, updates: TodoUpdate) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  timeTracking: TimeTrackingState & TimeTrackingActions;
+  onTimeTrackingClick: () => void;
 }
 
-export function MasterList({ items, onUpdate, onDelete }: MasterListProps) {
+export function MasterList({
+  items,
+  onUpdate,
+  onDelete,
+  timeTracking,
+  onTimeTrackingClick,
+}: MasterListProps) {
   const todayISO = formatDateISO(new Date());
 
   // Active (incomplete) items sorted: today first, then by date, events by start_time
@@ -53,24 +64,38 @@ export function MasterList({ items, onUpdate, onDelete }: MasterListProps) {
         Master List
       </h2>
 
-      {activeItems.length === 0 && completedItems.length === 0 ? (
+      {activeItems.length === 0 &&
+      completedItems.length === 0 &&
+      !timeTracking.isWorkday &&
+      !timeTracking.showDownloadReminder ? (
         <p className="py-6 text-center text-sm text-gray-400">
           No items yet. Add one above.
         </p>
       ) : (
         <>
-          {activeItems.length > 0 && (
-            <ul className="space-y-1.5">
-              {activeItems.map((item) => (
-                <ItemRow
-                  key={item.id}
-                  item={item}
-                  onUpdate={onUpdate}
-                  onDelete={onDelete}
-                />
-              ))}
-            </ul>
-          )}
+          <ul className="space-y-1.5">
+            {timeTracking.showDownloadReminder && (
+              <DownloadReminderRow
+                billingMonthLabel={timeTracking.billingMonthLabel}
+                downloading={timeTracking.downloading}
+                onClick={timeTracking.downloadFiles}
+              />
+            )}
+            {timeTracking.isWorkday && (
+              <TimeTrackingRow
+                todayHours={timeTracking.todayHours}
+                onClick={onTimeTrackingClick}
+              />
+            )}
+            {activeItems.map((item) => (
+              <ItemRow
+                key={item.id}
+                item={item}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+              />
+            ))}
+          </ul>
 
           {completedItems.length > 0 && (
             <div>
