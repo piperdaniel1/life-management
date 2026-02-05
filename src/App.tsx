@@ -46,6 +46,7 @@ export function App() {
             <h1 className="text-lg font-semibold text-gray-900">
               Life Management
             </h1>
+            {/* Desktop nav — keep in sync with mobile bottom nav below */}
             <nav className="hidden gap-1 md:flex">
               <button
                 onClick={() => setPage("dashboard")}
@@ -105,7 +106,7 @@ export function App() {
         </Suspense>
       </main>
 
-      {/* Mobile bottom navigation */}
+      {/* Mobile bottom nav — keep in sync with desktop nav above */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white md:hidden">
         <div className="flex">
           <button
@@ -132,6 +133,31 @@ export function App() {
               <rect x="14" y="14" width="7" height="7" rx="1" />
             </svg>
             <span className="text-xs font-medium">Dashboard</span>
+          </button>
+          <button
+            onClick={() => setPage("calendar")}
+            className={`flex flex-1 flex-col items-center gap-1 py-3 transition-colors ${
+              page === "calendar"
+                ? "text-gray-900"
+                : "text-gray-400"
+            }`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-6 w-6"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+            </svg>
+            <span className="text-xs font-medium">Calendar</span>
           </button>
           <button
             onClick={() => setPage("time-tracking")}
