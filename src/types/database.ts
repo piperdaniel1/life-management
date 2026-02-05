@@ -43,9 +43,13 @@ export type Database = {
         Row: {
           created_at: string
           description: string | null
+          end_time: string | null
           id: string
           is_complete: boolean
+          item_type: string
           position: number
+          scheduled_date: string | null
+          start_time: string | null
           title: string
           updated_at: string
           user_id: string
@@ -53,9 +57,13 @@ export type Database = {
         Insert: {
           created_at?: string
           description?: string | null
+          end_time?: string | null
           id?: string
           is_complete?: boolean
+          item_type?: string
           position?: number
+          scheduled_date?: string | null
+          start_time?: string | null
           title: string
           updated_at?: string
           user_id: string
@@ -63,9 +71,13 @@ export type Database = {
         Update: {
           created_at?: string
           description?: string | null
+          end_time?: string | null
           id?: string
           is_complete?: boolean
+          item_type?: string
           position?: number
+          scheduled_date?: string | null
+          start_time?: string | null
           title?: string
           updated_at?: string
           user_id?: string

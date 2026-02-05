@@ -1,6 +1,6 @@
 import { useAuth } from "@/hooks/useAuth";
 import { Auth } from "@/components/Auth";
-import { TodoList } from "@/components/TodoList";
+import { Dashboard } from "@/components/Dashboard";
 
 export function App() {
   const { user, loading, signOut } = useAuth();
@@ -20,7 +20,7 @@ export function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="border-b border-gray-200 bg-white">
-        <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-4">
+        <div className="mx-auto flex max-w-[2000px] items-center justify-between px-4 py-3">
           <h1 className="text-lg font-semibold text-gray-900">
             Life Management
           </h1>
@@ -36,8 +36,8 @@ export function App() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-4 py-8">
-        <TodoList />
+      <main className="mx-auto max-w-[2000px] px-4 py-6">
+        <Dashboard />
       </main>
     </div>
   );

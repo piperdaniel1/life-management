@@ -1,0 +1,155 @@
+import { FormEvent, useState } from "react";
+import { formatDateISO } from "@/lib/dateUtils";
+import type { ItemType, TodoInsert } from "@/types/models";
+
+interface UnifiedInputProps {
+  onAdd: (item: Omit<TodoInsert, "user_id">) => Promise<void>;
+}
+
+export function UnifiedInput({ onAdd }: UnifiedInputProps) {
+  const todayISO = formatDateISO(new Date());
+  const tomorrowISO = formatDateISO(new Date(Date.now() + 86400000));
+
+  const [title, setTitle] = useState("");
+  const [itemType, setItemType] = useState<ItemType>("task");
+  const [date, setDate] = useState(todayISO);
+  const [startTime, setStartTime] = useState("");
+  const [endTime, setEndTime] = useState("");
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    const trimmed = title.trim();
+    if (!trimmed) return;
+
+    if (itemType === "event" && (!date || !startTime)) return;
+
+    await onAdd({
+      title: trimmed,
+      item_type: itemType,
+      scheduled_date: date || null,
+      start_time: startTime || null,
+      end_time: endTime || null,
+    });
+
+    setTitle("");
+    setDate(todayISO);
+    setStartTime("");
+    setEndTime("");
+  };
+
+  const isEvent = itemType === "event";
+  const isTomorrow = date === tomorrowISO;
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-2">
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder={isEvent ? "Event title..." : "Task title..."}
+          className="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+        />
+        <button
+          type="submit"
+          disabled={!title.trim() || (isEvent && (!date || !startTime))}
+          className="rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:outline-none disabled:opacity-50"
+        >
+          Add
+        </button>
+      </div>
+
+      <div className="flex items-center justify-evenly">
+        {/* Type toggle */}
+        <div className="flex rounded-md border border-gray-300 text-xs">
+          <button
+            type="button"
+            onClick={() => setItemType("task")}
+            className={`rounded-l-md px-2 py-1.5 font-medium ${
+              !isEvent
+                ? "bg-blue-600 text-white"
+                : "bg-white text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            Task
+          </button>
+          <button
+            type="button"
+            onClick={() => setItemType("event")}
+            className={`rounded-r-md border-l border-gray-300 px-2 py-1.5 font-medium ${
+              isEvent
+                ? "bg-blue-600 text-white"
+                : "bg-white text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            Event
+          </button>
+        </div>
+
+        {/* Today / Tomorrow toggle */}
+        <div className="flex rounded-md border border-gray-300 text-xs">
+          <button
+            type="button"
+            onClick={() => setDate(todayISO)}
+            className={`rounded-l-md px-2 py-1.5 font-medium ${
+              !isTomorrow
+                ? "bg-blue-600 text-white"
+                : "bg-white text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            Today
+          </button>
+          <button
+            type="button"
+            onClick={() => setDate(tomorrowISO)}
+            className={`rounded-r-md border-l border-gray-300 px-2 py-1.5 font-medium ${
+              isTomorrow
+                ? "bg-blue-600 text-white"
+                : "bg-white text-gray-600 hover:bg-gray-50"
+            }`}
+          >
+            Tomorrow
+          </button>
+        </div>
+
+        {/* Date picker (for other dates) */}
+        <input
+          type="date"
+          value={date}
+          min={todayISO}
+          onChange={(e) => setDate(e.target.value)}
+          className={`rounded-md border border-gray-300 px-2 py-1.5 text-xs shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none ${
+            isEvent && !date ? "border-red-300" : ""
+          }`}
+        />
+
+      </div>
+
+      {/* Time inputs (shown when Event is selected) */}
+      {isEvent && (
+        <div className="flex items-center justify-evenly">
+          <div className="flex items-center gap-1">
+            <label className="text-xs text-gray-500">Start</label>
+            <input
+              type="time"
+              value={startTime}
+              onChange={(e) => setStartTime(e.target.value)}
+              className={`rounded-md border border-gray-300 px-2 py-1.5 text-xs shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none ${
+                !startTime ? "border-red-300" : ""
+              }`}
+            />
+          </div>
+          <div className="flex items-center gap-1">
+            <label className="text-xs text-gray-500">End</label>
+            <input
+              type="time"
+              value={endTime}
+              onChange={(e) => setEndTime(e.target.value)}
+              className="rounded-md border border-gray-300 px-2 py-1.5 text-xs shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+            />
+          </div>
+        </div>
+      )}
+    </form>
+  );
+}
