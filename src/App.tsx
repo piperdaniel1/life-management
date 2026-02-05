@@ -41,7 +41,7 @@ export function App() {
             <h1 className="text-lg font-semibold text-gray-900">
               Life Management
             </h1>
-            <nav className="flex gap-1">
+            <nav className="hidden gap-1 md:flex">
               <button
                 onClick={() => setPage("dashboard")}
                 className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
@@ -64,7 +64,7 @@ export function App() {
               </button>
             </nav>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="hidden items-center gap-3 md:flex">
             <span className="text-sm text-gray-500">{user.email}</span>
             <button
               onClick={signOut}
@@ -73,14 +73,74 @@ export function App() {
               Sign Out
             </button>
           </div>
+          <button
+            onClick={signOut}
+            className="rounded-md px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 md:hidden"
+          >
+            Sign Out
+          </button>
         </div>
       </header>
 
-      <main className="mx-auto max-w-[2000px] px-4 py-6">
+      <main className="mx-auto max-w-[2000px] px-4 py-6 pb-24 md:pb-6">
         <Suspense fallback={LoadingFallback}>
           {page === "dashboard" ? <Dashboard /> : <TimeTrackingPage />}
         </Suspense>
       </main>
+
+      {/* Mobile bottom navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-gray-200 bg-white md:hidden">
+        <div className="flex">
+          <button
+            onClick={() => setPage("dashboard")}
+            className={`flex flex-1 flex-col items-center gap-1 py-3 transition-colors ${
+              page === "dashboard"
+                ? "text-gray-900"
+                : "text-gray-400"
+            }`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-6 w-6"
+            >
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+            <span className="text-xs font-medium">Dashboard</span>
+          </button>
+          <button
+            onClick={() => setPage("time-tracking")}
+            className={`flex flex-1 flex-col items-center gap-1 py-3 transition-colors ${
+              page === "time-tracking"
+                ? "text-gray-900"
+                : "text-gray-400"
+            }`}
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="h-6 w-6"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            <span className="text-xs font-medium">Time Tracking</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }
