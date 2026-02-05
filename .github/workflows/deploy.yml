@@ -1,0 +1,45 @@
+# Deploy Supabase migrations + edge functions on push to main
+#
+# Required GitHub Secrets:
+#
+#   SUPABASE_ACCESS_TOKEN — Personal access token (Supabase > Account > Access Tokens)
+#   SUPABASE_PROJECT_REF  — Project reference ID (Supabase > Project Settings > General)
+#   SUPABASE_DB_PASSWORD  — Database password (Supabase > Project Settings > Database)
+
+name: Deploy Supabase
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: deploy-supabase
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy Supabase
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link Supabase project
+        run: supabase link --project-ref ${{ secrets.SUPABASE_PROJECT_REF }}
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+
+      - name: Push database migrations
+        run: supabase db push
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+
+      - name: Deploy edge functions
+        run: supabase functions deploy
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
