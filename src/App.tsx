@@ -1,20 +1,28 @@
+import { lazy, Suspense } from "react";
 import { useAuth } from "@/hooks/useAuth";
-import { Auth } from "@/components/Auth";
-import { Dashboard } from "@/components/Dashboard";
+
+const Auth = lazy(() =>
+  import("@/components/Auth").then((m) => ({ default: m.Auth }))
+);
+const Dashboard = lazy(() =>
+  import("@/components/Dashboard").then((m) => ({ default: m.Dashboard }))
+);
+
+const LoadingFallback = (
+  <div className="flex min-h-screen items-center justify-center bg-gray-50">
+    <p className="text-sm text-gray-500">Loading...</p>
+  </div>
+);
 
 export function App() {
   const { user, loading, signOut } = useAuth();
 
   if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-50">
-        <p className="text-sm text-gray-500">Loading...</p>
-      </div>
-    );
+    return LoadingFallback;
   }
 
   if (!user) {
-    return <Auth />;
+    return <Suspense fallback={LoadingFallback}><Auth /></Suspense>;
   }
 
   return (
@@ -37,7 +45,9 @@ export function App() {
       </header>
 
       <main className="mx-auto max-w-[2000px] px-4 py-6">
-        <Dashboard />
+        <Suspense fallback={LoadingFallback}>
+          <Dashboard />
+        </Suspense>
       </main>
     </div>
   );

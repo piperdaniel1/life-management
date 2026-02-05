@@ -1,10 +1,13 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import { useItems } from "@/hooks/useItems";
 import { useTimeTracking } from "@/hooks/useTimeTracking";
 import { UnifiedInput } from "./UnifiedInput";
 import { MasterList } from "./MasterList";
 import { WeekView } from "./WeekView";
-import { TimeTrackingModal } from "./TimeTrackingModal";
+
+const TimeTrackingModal = lazy(() =>
+  import("./TimeTrackingModal").then((m) => ({ default: m.TimeTrackingModal }))
+);
 
 export function Dashboard() {
   const { items, loading, error, addItem, updateItem, deleteItem } =
@@ -54,14 +57,18 @@ export function Dashboard() {
         />
       </div>
 
-      <TimeTrackingModal
-        open={timeModalOpen}
-        onClose={() => setTimeModalOpen(false)}
-        todayEntry={timeTracking.todayEntry}
-        monthTotal={timeTracking.monthTotal}
-        onSave={timeTracking.upsertEntry}
-        onDelete={timeTracking.deleteEntry}
-      />
+      {timeModalOpen && (
+        <Suspense fallback={null}>
+          <TimeTrackingModal
+            open={timeModalOpen}
+            onClose={() => setTimeModalOpen(false)}
+            todayEntry={timeTracking.todayEntry}
+            monthTotal={timeTracking.monthTotal}
+            onSave={timeTracking.upsertEntry}
+            onDelete={timeTracking.deleteEntry}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

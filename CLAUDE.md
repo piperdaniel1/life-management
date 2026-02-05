@@ -57,6 +57,7 @@ npm run db:types         # Regenerate src/types/database.ts from live schema
 - **Realtime sync**: `useTodos` subscribes to `postgres_changes` on the todos table. Enable Replication for new tables in the Supabase dashboard.
 - **Edge functions for privileged ops**: Use `SUPABASE_SERVICE_ROLE_KEY` (set in Supabase secrets) when you need to bypass RLS (e.g., cleanup jobs, admin operations).
 - **No sign-up UI**: Auth component is sign-in only. Create users manually in Supabase dashboard > Authentication > Users.
+- **Code splitting**: Route-level components (Auth, Dashboard) and heavy modals are lazy-loaded with `React.lazy()` + `<Suspense>`. Vendor deps are split into cacheable chunks via `manualChunks` in `vite.config.ts`. When adding a new dependency, add a matching `id.includes("node_modules/<pkg>")` rule to `manualChunks` — use the function form, not the array form, so subpath imports (e.g. `react-dom/client`) are caught.
 
 ## Environment Variables
 

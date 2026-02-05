@@ -42,6 +42,13 @@ function getBillingMonth(now: Date): { year: number; month: number; str: string 
   return { year, month, str };
 }
 
+function getCurrentMonth(now: Date): { year: number; month: number; str: string } {
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const str = `${year}-${String(month + 1).padStart(2, "0")}`;
+  return { year, month, str };
+}
+
 /**
  * Should we show the download reminder?
  * True when:
@@ -93,7 +100,8 @@ export function useTimeTracking(): TimeTrackingState & TimeTrackingActions {
 
   const now = new Date();
   const todayISO = formatDateISO(now);
-  const { year, month, str: billingMonthStr } = getBillingMonth(now);
+  const { year, month } = getCurrentMonth(now);
+  const { str: billingMonthStr } = getBillingMonth(now);
   const workday = isWorkday(now);
   const inDownloadWindow = isInDownloadWindow(now);
 
