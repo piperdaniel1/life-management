@@ -95,7 +95,7 @@ export function TimeTrackingModal({
               type="text"
               value={date}
               readOnly
-              className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-500"
+              className="w-full rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-base md:text-sm text-gray-500"
             />
           </div>
 
@@ -112,7 +112,7 @@ export function TimeTrackingModal({
               onChange={(e) => setHours(e.target.value)}
               placeholder="e.g. 8.00"
               required
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-base md:text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
             />
           </div>
 
@@ -127,7 +127,7 @@ export function TimeTrackingModal({
               placeholder="What did you work on?"
               required
               rows={3}
-              className="w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+              className="w-full resize-none rounded-md border border-gray-300 px-3 py-2 text-base md:text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
             />
           </div>
 
@@ -142,7 +142,7 @@ export function TimeTrackingModal({
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               placeholder="Additional notes"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
+              className="w-full rounded-md border border-gray-300 px-3 py-2 text-base md:text-sm focus:border-teal-500 focus:ring-1 focus:ring-teal-500 focus:outline-none"
             />
           </div>
 

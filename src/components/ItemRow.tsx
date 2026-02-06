@@ -97,7 +97,7 @@ export function ItemRow({ item, onUpdate, onDelete, compact }: ItemRowProps) {
           onKeyDown={handleKeyDown}
           autoFocus
           className={`min-w-0 flex-1 rounded border border-gray-300 px-2 py-0.5 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none ${
-            compact ? "text-xs" : "text-sm"
+            compact ? "text-base md:text-xs" : "text-base md:text-sm"
           }`}
         />
       ) : (

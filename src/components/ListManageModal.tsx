@@ -135,7 +135,7 @@ export function ListManageModal({
                         if (e.key === "Escape") setEditingId(null);
                       }}
                       autoFocus
-                      className="min-w-0 flex-1 rounded border border-gray-300 px-2 py-1 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+                      className="min-w-0 flex-1 rounded border border-gray-300 px-2 py-1 text-base md:text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
                     />
                     <button
                       onClick={handleSaveEdit}
@@ -225,7 +225,7 @@ export function ListManageModal({
                 if (e.key === "Enter") handleAdd();
               }}
               placeholder="List name..."
-              className="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+              className="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 text-base md:text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
             />
             <button
               onClick={handleAdd}

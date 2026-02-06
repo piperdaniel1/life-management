@@ -116,7 +116,7 @@ export function DraggableItemRow({
           onBlur={handleSave}
           onKeyDown={handleKeyDown}
           autoFocus
-          className="min-w-0 flex-1 rounded border border-gray-300 px-2 py-0.5 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+          className="min-w-0 flex-1 rounded border border-gray-300 px-2 py-0.5 text-base md:text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
         />
       ) : (
         <span

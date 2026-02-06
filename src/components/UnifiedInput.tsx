@@ -66,7 +66,7 @@ export function UnifiedInput({ onAdd, initialDate, activeListId, lists }: Unifie
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder={isEvent ? "Event title..." : "Task title..."}
-          className="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+          className="min-w-0 flex-1 rounded-md border border-gray-300 px-3 py-2 text-base md:text-sm shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
         />
         <button
           type="submit"
@@ -136,17 +136,17 @@ export function UnifiedInput({ onAdd, initialDate, activeListId, lists }: Unifie
           value={date}
           min={todayISO}
           onChange={(e) => setDate(e.target.value)}
-          className={`rounded-md border border-gray-300 px-2 py-1.5 text-xs shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none ${
+          className={`rounded-md border border-gray-300 px-2 py-1.5 text-base md:text-xs shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none ${
             isEvent && !date ? "border-red-300" : ""
           }`}
         />
       </div>
 
-      {activeListName && (
-        <p className="text-xs text-gray-400">
-          Adding to <span className="font-medium text-gray-600">{activeListName}</span>
-        </p>
-      )}
+      <p className="min-h-4 text-xs text-gray-400">
+        <span className={activeListName ? "" : "opacity-0"} aria-hidden={!activeListName}>
+          Adding to <span className="font-medium text-gray-600">{activeListName ?? "list"}</span>
+        </span>
+      </p>
 
       {/* Time inputs (shown when Event is selected, both optional for full-day) */}
       {isEvent && (
@@ -157,7 +157,7 @@ export function UnifiedInput({ onAdd, initialDate, activeListId, lists }: Unifie
               type="time"
               value={startTime}
               onChange={(e) => setStartTime(e.target.value)}
-              className="rounded-md border border-gray-300 px-2 py-1.5 text-xs shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+              className="rounded-md border border-gray-300 px-2 py-1.5 text-base md:text-xs shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
             />
           </div>
           <div className="flex items-center gap-1">
@@ -166,7 +166,7 @@ export function UnifiedInput({ onAdd, initialDate, activeListId, lists }: Unifie
               type="time"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
-              className="rounded-md border border-gray-300 px-2 py-1.5 text-xs shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
+              className="rounded-md border border-gray-300 px-2 py-1.5 text-base md:text-xs shadow-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 focus:outline-none"
             />
           </div>
         </div>
