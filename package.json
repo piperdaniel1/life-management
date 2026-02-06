@@ -10,7 +10,6 @@
     "db:link": "supabase link",
     "db:migrate": "supabase db push",
     "db:migration:new": "supabase migration new",
-    "db:reset": "supabase db reset --linked",
     "db:types": "supabase gen types typescript --linked > src/types/database.ts"
   },
   "dependencies": {

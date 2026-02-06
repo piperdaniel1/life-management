@@ -37,7 +37,6 @@ npm run build            # TypeScript check + production build → dist/
 npm run db:link          # Link to remote Supabase project (one-time)
 npm run db:migrate       # Push migrations to remote DB
 npm run db:migration:new # Create new timestamped migration file
-npm run db:reset         # Reset remote DB and replay all migrations
 npm run db:types         # Regenerate src/types/database.ts from live schema
 ```
 
@@ -82,9 +81,7 @@ These are public/safe — security comes from RLS, not key secrecy.
 
 ## Deployment
 
-- Netlify auto-deploys from the connected git repo
-- `netlify.toml` configures build command (`npm run build`), publish dir (`dist`), and SPA redirect
-- Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in Netlify > Site configuration > Environment variables
+- Everything automatically deploys via CI/CD
 
 ## Date Handling (Day.js)
 
@@ -95,12 +92,3 @@ Always use Day.js — never `new Date()`.
 - **Plugins**: `isoWeek` (frontend — Monday-based week start), `advancedFormat` (edge function `time-tracking-generate-docs` — ordinal `Do` token).
 - **Shared utils**: `formatDateISO`, `getRollingWeekDays`, `getEffectiveDate`, `isEventPast`, `getTimeOfDayGradient`, `formatTime` live in `src/lib/dateUtils.ts`.
 - **Common patterns**: `dayjs().format("YYYY-MM-DD")`, `.startOf("isoWeek")`, `.add(1, "day")`, `.daysInMonth()`, `.isBefore()`, `.isSame()`, `.isAfter()`.
-
-## Edge Functions
-
-Located in `supabase/functions/<name>/index.ts`. Deno runtime.
-
-Deploy: `npx supabase functions deploy <name>`
-
-Current functions:
-- `cleanup-completed` — deletes completed todos older than 30 days. Not on a schedule yet; call manually or set up a cron.

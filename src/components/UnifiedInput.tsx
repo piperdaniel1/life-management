@@ -52,7 +52,6 @@ export function UnifiedInput({ onAdd, initialDate, activeListId, lists }: Unifie
   const isEvent = itemType === "event";
   const isToday = date === todayISO;
   const isTomorrow = date === tomorrowISO;
-  const isNoDate = !date;
 
   // Find the active list name for display
   const activeListName = activeListId && lists
@@ -105,25 +104,12 @@ export function UnifiedInput({ onAdd, initialDate, activeListId, lists }: Unifie
           </button>
         </div>
 
-        {/* Date selection: No Date / Today / Tomorrow */}
+        {/* Date selection: Today / Tomorrow */}
         <div className="flex rounded-md border border-gray-300 text-xs">
-          {!initialDate && (
-            <button
-              type="button"
-              onClick={() => setDate("")}
-              className={`rounded-l-md px-2 py-1.5 font-medium ${
-                isNoDate
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-600 hover:bg-gray-50"
-              }`}
-            >
-              No date
-            </button>
-          )}
           <button
             type="button"
-            onClick={() => setDate(todayISO)}
-            className={`${initialDate ? "rounded-l-md" : "border-l border-gray-300"} px-2 py-1.5 font-medium ${
+            onClick={() => setDate(isToday ? "" : todayISO)}
+            className={`rounded-l-md px-2 py-1.5 font-medium ${
               isToday
                 ? "bg-blue-600 text-white"
                 : "bg-white text-gray-600 hover:bg-gray-50"
@@ -133,7 +119,7 @@ export function UnifiedInput({ onAdd, initialDate, activeListId, lists }: Unifie
           </button>
           <button
             type="button"
-            onClick={() => setDate(tomorrowISO)}
+            onClick={() => setDate(isTomorrow ? "" : tomorrowISO)}
             className={`rounded-r-md border-l border-gray-300 px-2 py-1.5 font-medium ${
               isTomorrow
                 ? "bg-blue-600 text-white"
