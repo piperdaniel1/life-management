@@ -39,6 +39,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      lists: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+          position: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id?: string
+          name: string
+          position?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+          position?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       time_entries: {
         Row: {
           created_at: string | null
@@ -101,6 +131,7 @@ export type Database = {
           id: string
           is_complete: boolean
           item_type: string
+          list_id: string | null
           position: number
           scheduled_date: string | null
           start_time: string | null
@@ -115,6 +146,7 @@ export type Database = {
           id?: string
           is_complete?: boolean
           item_type?: string
+          list_id?: string | null
           position?: number
           scheduled_date?: string | null
           start_time?: string | null
@@ -129,6 +161,7 @@ export type Database = {
           id?: string
           is_complete?: boolean
           item_type?: string
+          list_id?: string | null
           position?: number
           scheduled_date?: string | null
           start_time?: string | null

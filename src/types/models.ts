@@ -12,3 +12,7 @@ export type TimeEntryInsert = Database["public"]["Tables"]["time_entries"]["Inse
 export type TimeEntryUpdate = Database["public"]["Tables"]["time_entries"]["Update"];
 
 export type TimeTrackingDownload = Database["public"]["Tables"]["time_tracking_downloads"]["Row"];
+
+export type List = Database["public"]["Tables"]["lists"]["Row"];
+export type ListInsert = Database["public"]["Tables"]["lists"]["Insert"];
+export type ListUpdate = Database["public"]["Tables"]["lists"]["Update"];
