@@ -1,20 +1,24 @@
 import { FormEvent, useEffect, useState } from "react";
 import { dayjs } from "@/lib/dayjs";
 import { formatDateISO } from "@/lib/dateUtils";
-import type { ItemType, TodoInsert } from "@/types/models";
+import type { ItemType, TodoInsert, List } from "@/types/models";
 
 interface UnifiedInputProps {
   onAdd: (item: Omit<TodoInsert, "user_id">) => Promise<void>;
   initialDate?: string;
+  /** When provided, newly created items are assigned to this list */
+  activeListId?: string | null;
+  lists?: List[];
 }
 
-export function UnifiedInput({ onAdd, initialDate }: UnifiedInputProps) {
+export function UnifiedInput({ onAdd, initialDate, activeListId, lists }: UnifiedInputProps) {
   const todayISO = formatDateISO(dayjs());
   const tomorrowISO = formatDateISO(dayjs().add(1, "day"));
 
   const [title, setTitle] = useState("");
   const [itemType, setItemType] = useState<ItemType>("task");
-  const [date, setDate] = useState(initialDate ?? todayISO);
+  // Default: no date for tasks (null), unless initialDate is provided
+  const [date, setDate] = useState(initialDate ?? "");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
 
@@ -35,16 +39,25 @@ export function UnifiedInput({ onAdd, initialDate }: UnifiedInputProps) {
       scheduled_date: date || null,
       start_time: startTime || null,
       end_time: endTime || null,
+      list_id: activeListId || null,
     });
 
     setTitle("");
-    setDate(todayISO);
+    // Reset to no date unless we have an initialDate
+    setDate(initialDate ?? "");
     setStartTime("");
     setEndTime("");
   };
 
   const isEvent = itemType === "event";
+  const isToday = date === todayISO;
   const isTomorrow = date === tomorrowISO;
+  const isNoDate = !date;
+
+  // Find the active list name for display
+  const activeListName = activeListId && lists
+    ? lists.find((l) => l.id === activeListId)?.name
+    : null;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2">
@@ -92,13 +105,26 @@ export function UnifiedInput({ onAdd, initialDate }: UnifiedInputProps) {
           </button>
         </div>
 
-        {/* Today / Tomorrow toggle */}
+        {/* Date selection: No Date / Today / Tomorrow */}
         <div className="flex rounded-md border border-gray-300 text-xs">
+          {!initialDate && (
+            <button
+              type="button"
+              onClick={() => setDate("")}
+              className={`rounded-l-md px-2 py-1.5 font-medium ${
+                isNoDate
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-gray-600 hover:bg-gray-50"
+              }`}
+            >
+              No date
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setDate(todayISO)}
-            className={`rounded-l-md px-2 py-1.5 font-medium ${
-              !isTomorrow
+            className={`${initialDate ? "rounded-l-md" : "border-l border-gray-300"} px-2 py-1.5 font-medium ${
+              isToday
                 ? "bg-blue-600 text-white"
                 : "bg-white text-gray-600 hover:bg-gray-50"
             }`}
@@ -128,8 +154,13 @@ export function UnifiedInput({ onAdd, initialDate }: UnifiedInputProps) {
             isEvent && !date ? "border-red-300" : ""
           }`}
         />
-
       </div>
+
+      {activeListName && (
+        <p className="text-xs text-gray-400">
+          Adding to <span className="font-medium text-gray-600">{activeListName}</span>
+        </p>
+      )}
 
       {/* Time inputs (shown when Event is selected, both optional for full-day) */}
       {isEvent && (
