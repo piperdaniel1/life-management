@@ -36,7 +36,7 @@ CREATE POLICY "Users can delete own lists"
 CREATE TRIGGER set_lists_updated_at
   BEFORE UPDATE ON lists
   FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at();
+  EXECUTE FUNCTION public.handle_updated_at();
 
 -- Add list_id to todos table
 ALTER TABLE todos ADD COLUMN list_id UUID REFERENCES lists(id) ON DELETE SET NULL;
