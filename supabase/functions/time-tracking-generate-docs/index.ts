@@ -15,7 +15,7 @@ const corsHeaders = {
 // ============================================
 // CONFIGURATION
 // ============================================
-const HOURLY_RATE = 55.0;
+const HOURLY_RATE = 65.0;
 const CLIENT_NAME = "Merging Solutions, LLC";
 const CONTACT_NAME = "Daniel Piper";
 const CONTACT_PHONE = "(541) 363-9921";
