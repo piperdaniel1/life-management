@@ -175,11 +175,11 @@ export function useCalendarTimeTracking(): CalendarTimeTrackingReturn {
       }
 
       if (invoiceResult.status === "fulfilled" && !invoiceResult.value.error) {
-        triggerDownload(invoiceResult.value.data as Blob, `Invoice ${monthLabel}.pdf`);
+        triggerDownload(invoiceResult.value.data as Blob, `Merging Solutions, LLC ${monthLabel} Invoice.pdf`);
       }
 
       if (hoursLogResult.status === "fulfilled" && !hoursLogResult.value.error) {
-        triggerDownload(hoursLogResult.value.data as Blob, `Hours Log ${monthLabel}.pdf`);
+        triggerDownload(hoursLogResult.value.data as Blob, `PG&E ${monthLabel} Hours Log.pdf`);
       }
     } catch (err) {
       setError((err as Error).message);

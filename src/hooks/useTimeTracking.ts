@@ -248,11 +248,11 @@ export function useTimeTracking(): TimeTrackingState & TimeTrackingActions {
       }
 
       if (invoiceResult.status === "fulfilled" && !invoiceResult.value.error) {
-        triggerDownload(invoiceResult.value.data as Blob, `Invoice ${billingMonthLabel}.pdf`);
+        triggerDownload(invoiceResult.value.data as Blob, `Merging Solutions, LLC ${billingMonthLabel} Invoice.pdf`);
       }
 
       if (hoursLogResult.status === "fulfilled" && !hoursLogResult.value.error) {
-        triggerDownload(hoursLogResult.value.data as Blob, `Hours Log ${billingMonthLabel}.pdf`);
+        triggerDownload(hoursLogResult.value.data as Blob, `PG&E ${billingMonthLabel} Hours Log.pdf`);
       }
 
       await markDownloaded();
